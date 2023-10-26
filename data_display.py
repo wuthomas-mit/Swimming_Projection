@@ -5,14 +5,16 @@ import json
 import numpy as np
 from scipy.optimize import curve_fit
 
+# Define the logarithmic function
 def logarithmic_func(x, a, b):
     return a * np.log(x) + b
-log_fit_params = {}
-data_dict = {}
 
 # Load the combined data from the JSON file
 with open('data/combined_data.json', 'r') as file:
     combined_data = json.load(file)
+
+# Dictionary to store the parameters for each event
+all_log_fit_params = {}
 
 # Iterate through each person
 for person_key, person_data in combined_data.items():
@@ -25,19 +27,23 @@ for person_key, person_data in combined_data.items():
                 data_points.append((date, float(time_value)))
 
             data_points.sort(key=lambda x: x[0])
-            data_dict[event_name] = data_points
             sorted_dates = [x[0].strftime('%b %d %Y') for x in data_points]
             sorted_times = [x[1] for x in data_points]
 
             plt.figure(figsize=(12, 8)) 
             plt.plot(sorted_dates, sorted_times, '-o', label='Data Points')
 
-             # Fit the function
+            # Fit the function
             x = np.arange(1, len(sorted_dates) + 1)  # Using 1-based index for the swims
             popt, _ = curve_fit(logarithmic_func, x, sorted_times)
-            log_fit_params[event_name] = popt
-            plt.plot(sorted_dates, logarithmic_func(x, *popt), label='Logarithmic Fit')
 
+            if event_name in all_log_fit_params:
+                all_log_fit_params[event_name].append(popt)
+            else:
+                all_log_fit_params[event_name] = [popt]
+
+            # Plot the fitted curve
+            plt.plot(sorted_dates, logarithmic_func(x, *popt), label='Logarithmic Fit')
 
             plt.xlabel('Date')
             plt.ylabel('Time (seconds)')
@@ -50,11 +56,17 @@ for person_key, person_data in combined_data.items():
             plt.legend()
             plt.show()
 
-# # Predicting new data points based on a specific date
-# # Assuming 'new_date' as the new input data
-# new_date = datetime.strptime('2023-10-15', '%Y-%m-%d').date()  # Sample new date
-# for event_name, params in log_fit_params.items():
-#     data = data_dict[event_name]
-#     swim_for_date = np.where(np.array([x[0] for x in data]) == new_date)[0][0] + 1
-#     predicted_time = logarithmic_func(swim_for_date, *params)
-#     print(f"Predicted time for event {event_name} on {new_date}: {predicted_time} seconds")
+# Calculate the average parameters for each event
+average_log_fit_params = {}
+for event_name, params_list in all_log_fit_params.items():
+    average_params = np.mean(params_list, axis=0)
+    average_log_fit_params[event_name] = average_params
+
+# Create a generalized logarithmic function using the average parameters
+def generalized_logarithmic_func(x, a, b):
+    return a * np.log(x) + b
+
+# Function to predict next year's time for an event using the generalized function
+# def predict_next_year_time(event_name, year, params):
+#     next_year = year + 1
+#     return generalized_logarithmic_func(next_year, *params)
