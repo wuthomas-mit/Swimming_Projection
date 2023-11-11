@@ -10,7 +10,7 @@ def logarithmic_func(x, a, b):
     return a * np.log(x) + b
 
 # Load the combined data from the JSON file
-with open('data/combined_data.json', 'r') as file:
+with open('original/data/combined_data.json', 'r') as file:
     combined_data = json.load(file)
 
 # Dictionary to store the parameters for each event
@@ -20,7 +20,7 @@ all_log_fit_params = {}
 for person_key, person_data in combined_data.items():
     gender = person_data['gender']
     for event_name, event_data in person_data['events'].items():
-        if len(event_data['swims']) > 8:
+        if len(event_data['swims']) > 7:
             data_points = []
             for date_key, time_value in event_data['swims'].items():
                 date = datetime.strptime(date_key, '%Y%m%d').date()
@@ -61,12 +61,3 @@ average_log_fit_params = {}
 for event_name, params_list in all_log_fit_params.items():
     average_params = np.mean(params_list, axis=0)
     average_log_fit_params[event_name] = average_params
-
-# Create a generalized logarithmic function using the average parameters
-def generalized_logarithmic_func(x, a, b):
-    return a * np.log(x) + b
-
-# Function to predict next year's time for an event using the generalized function
-# def predict_next_year_time(event_name, year, params):
-#     next_year = year + 1
-#     return generalized_logarithmic_func(next_year, *params)
