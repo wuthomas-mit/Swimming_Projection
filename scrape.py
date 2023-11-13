@@ -70,13 +70,15 @@ for index, row in df.iterrows():
         WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.CLASS_NAME, "k-loading-image")))
     
         try:
-            error = driver.find_element(By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-Times"]/p')
-            firstname.clear()
-            lastname.clear()
-            continue
-        except:
-            download = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-DownloadButton"]')))
+            download = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-DownloadButton"]')))
             download.click()
             
             firstname.clear()
             lastname.clear()
+        except:
+            # # error = driver.find_element(By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-Times"]/p')
+            # error = driver.find_element(By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-DownloadButton"]')
+            # # erorr_2 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="Times_TimesSearchDetail_Index_Div-1-Times"][contains(text(), "No times found")]')))
+            firstname.clear()
+            lastname.clear()
+            continue
