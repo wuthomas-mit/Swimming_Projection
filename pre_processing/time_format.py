@@ -15,7 +15,7 @@ def process_excel_file(file_path):
     df.to_excel(file_path, sheet_name='Sheet1', index=False)
 
 # Specify the folder containing the Excel files
-folder_path = "/Users/thomaswu/Downloads/urop"
+folder_path = "/Users/thomaswu/Downloads/urop_1"
 
 # Loop through each file in the folder
 for filename in os.listdir(folder_path):

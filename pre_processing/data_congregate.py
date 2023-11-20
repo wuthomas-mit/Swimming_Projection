@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Folder containing the Excel files
-folder_path = "/Users/thomaswu/Downloads/urop"
+folder_path = "/Users/thomaswu/Downloads/urop_1"
 
 # Output file name
 output_file = "combined_output.xlsx"
@@ -22,8 +22,12 @@ for file_name in os.listdir(folder_path):
         df = pd.read_excel(file_path, engine='openpyxl')
         # Add a new column with the extracted name
         df['Name'] = name
+
+        # Filter rows where "Event" column is equal to "100 FR SCY"
+        df_filtered = df[df['Event'] == '100 FR SCY']
+        
         # Append the data to the list
-        data_frames.append(df)
+        data_frames.append(df_filtered)
         
 
 # Combine all DataFrames into one
