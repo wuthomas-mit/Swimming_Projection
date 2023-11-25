@@ -33,6 +33,13 @@ for file_name in os.listdir(folder_path):
 # Combine all DataFrames into one
 combined_data = pd.concat(data_frames, ignore_index=True)
 
+# Loop through the rows of the specified column and change the values
+for index, value in combined_data['Time'].items():
+    minutes, seconds = value.split(":")
+    new_value = (float(minutes) *  60) + float(seconds)
+    
+    # Update the DataFrame with the new value
+    combined_data.at[index, 'Time'] = new_value
 
 # Write the combined DataFrame to a new Excel file
 combined_data.to_excel(output_file, index=False)
