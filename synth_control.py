@@ -13,7 +13,7 @@ df = pd.read_excel(file_path)
 fastest_swims = df.sort_values('Time').groupby(['Name', 'Age']).head(1)
 
 # Pivot the data
-pivoted_df = fastest_swims.pivot_table(index='Name', columns='Age', values='Time', aggfunc='first').fillna(0)
+pivoted_df = fastest_swims.pivot_table(index='Name', columns='Age', values='Time', aggfunc='first').fillna(np.NaN)
 
 '''
 
@@ -30,18 +30,18 @@ print(sorted_columns)
 '''
 
 # Specify the age range you want to include
-age_range_start = 10
-age_range_end = 21
+age_range_start = 5
+age_range_end = 28
 
 # Convert column names to integers and filter columns based on the age range
 selected_columns = pivoted_df.loc[:, (pivoted_df.columns.astype(int) >= age_range_start) & (pivoted_df.columns.astype(int) <= age_range_end)]
 
 
-# Filter swimmers with times for all ages in the range
-filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_range_start) & (selected_columns.columns <= age_range_end)].astype(bool).all(axis=1)
+# # Filter swimmers with times for all ages in the range
+# filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_range_start) & (selected_columns.columns <= age_range_end)].astype(bool).all(axis=1)
 
-# Keep only the rows (swimmers) that have all times
-swimmers_all_times = selected_columns[filtered_swimmers]
+# # Keep only the rows (swimmers) that have all times
+# swimmers_all_times = selected_columns[filtered_swimmers]
 
 '''
 # Convert the DataFrame to a numpy array
@@ -74,7 +74,7 @@ new_swimmer_data = pd.DataFrame({
 '''
 # new strat start
 # Assuming 'pivoted_df' is the pivoted DataFrame
-stacked_df = swimmers_all_times.stack().reset_index()
+stacked_df = selected_columns.stack().reset_index()
 
 # Rename the columns for clarity
 stacked_df.columns = ['Name', 'Age', 'Time']
@@ -107,10 +107,9 @@ dataprep_train = Dataprep(
 )
 
 synth_train = Synth()
-synth_train.fit(dataprep=dataprep_train)
-# synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
+# synth_train.fit(dataprep=dataprep_train)
+synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
 print(synth_train.weights())
 
 synth_train.path_plot(time_period=range(10, 22), treatment_time= 16)
 synth_train.gaps_plot(time_period=range(10, 22), treatment_time= 16)
-synth_train.att(time_period=range(17, 22))
