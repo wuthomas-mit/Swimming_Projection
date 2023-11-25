@@ -43,24 +43,6 @@ filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_ran
 # Keep only the rows (swimmers) that have all times
 swimmers_all_times = selected_columns[filtered_swimmers]
 
-# Assuming 'pivoted_df' is the pivoted DataFrame
-stacked_df = swimmers_all_times.stack().reset_index()
-
-# Rename the columns for clarity
-stacked_df.columns = ['Name', 'Age', 'Time']
-
-#Creating Input Swimmer
-new_ages = [10, 11, 12, 13, 14, 15, 16]
-new_times = [62.13, 58.96, 53.99, 49.51, 47.5, 45.56, 43.82]
-
-# Create a DataFrame from the new data
-new_data = {'Name': 'INPUT', 'Age': new_ages, 'Time': new_times}
-new_rows_df = pd.DataFrame(new_data)
-
-print(type(stacked_df))
-# Append the new DataFrame to the existing DataFrame
-stacked_df = pd.concat([stacked_df, new_rows_df], ignore_index=True)
-print(stacked_df)
 '''
 # Convert the DataFrame to a numpy array
 data_matrix = swimmers_all_times.values
@@ -90,41 +72,45 @@ new_swimmer_data = pd.DataFrame({
 })
 
 '''
+# new strat start
+# Assuming 'pivoted_df' is the pivoted DataFrame
+stacked_df = swimmers_all_times.stack().reset_index()
+
+# Rename the columns for clarity
+stacked_df.columns = ['Name', 'Age', 'Time']
+
+#Creating Input Swimmer
+new_ages = [10, 11, 12, 13, 14, 15, 16]
+new_times = [62.13, 58.96, 53.99, 49.51, 47.5, 45.56, 43.82]
+
+# Create a DataFrame from the new data
+new_data = {'Name': 'INPUT', 'Age': new_ages, 'Time': new_times}
+new_rows_df = pd.DataFrame(new_data)
+
+# Append the new DataFrame to the existing DataFrame
+stacked_df = pd.concat([stacked_df, new_rows_df], ignore_index=True)
+
+names_list = stacked_df['Name'].unique().tolist()
+names_list.remove("INPUT")
 
 dataprep_train = Dataprep(
-    foo=df,
-    predictors=["gdp", "trade", "infrate"],
-    predictors_op="mean",
-    time_predictors_prior=range(1971, 1981),
-    special_predictors=[
-        ("industry", range(1971, 1981), "mean"),
-        ("schooling", [1970, 1975], "mean"),
-        ("invest70", [1980], "mean"),
-    ],
-    dependent="gdp",
-    unit_variable="country",
-    time_variable="year",
-    treatment_identifier="West Germany",
-    controls_identifier=[
-        "USA",
-        "UK",
-        "Austria",
-        "Belgium",
-        "Denmark",
-        "France",
-        "Italy",
-        "Netherlands",
-        "Norway",
-        "Switzerland",
-        "Japan",
-        "Greece",
-        "Portugal",
-        "Spain",
-        "Australia",
-        "New Zealand",
-    ],
-    time_optimize_ssr=range(1981, 1991),
+    foo=stacked_df,
+    predictors= ["Time"],
+    predictors_op= "mean",
+    time_predictors_prior=range(10,22),
+    dependent="Time",
+    unit_variable="Name",
+    time_variable="Age",
+    treatment_identifier="INPUT",
+    controls_identifier= names_list,
+    time_optimize_ssr=range(10,22),
 )
 
 synth_train = Synth()
 synth_train.fit(dataprep=dataprep_train)
+# synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
+print(synth_train.weights())
+
+synth_train.path_plot(time_period=range(10, 22), treatment_time= 16)
+synth_train.gaps_plot(time_period=range(10, 22), treatment_time= 16)
+synth_train.att(time_period=range(17, 22))
