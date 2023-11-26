@@ -13,7 +13,7 @@ df = pd.read_excel(file_path)
 fastest_swims = df.sort_values('Time').groupby(['Name', 'Age']).head(1)
 
 # Pivot the data
-pivoted_df = fastest_swims.pivot_table(index='Name', columns='Age', values='Time', aggfunc='first').fillna(np.NaN)
+pivoted_df = fastest_swims.pivot_table(index='Name', columns='Age', values='Time', aggfunc='first').fillna(0)
 
 
 '''
@@ -30,18 +30,18 @@ print(sorted_columns)
 '''
 
 # Specify the age range you want to include
-age_range_start = 9
+age_range_start = 10
 age_range_end = 21
 
 # Convert column names to integers and filter columns based on the age range
 selected_columns = pivoted_df.loc[:, (pivoted_df.columns.astype(int) >= age_range_start) & (pivoted_df.columns.astype(int) <= age_range_end)]
 
 
-# # Filter swimmers with times for all ages in the range
-# filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_range_start) & (selected_columns.columns <= age_range_end)].astype(bool).all(axis=1)
+# Filter swimmers with times for all ages in the range
+filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_range_start) & (selected_columns.columns <= age_range_end)].astype(bool).all(axis=1)
 
-# # Keep only the rows (swimmers) that have all times
-# swimmers_all_times = selected_columns[filtered_swimmers]
+# Keep only the rows (swimmers) that have all times
+swimmers_all_times = selected_columns[filtered_swimmers]
 
 '''
 # Convert the DataFrame to a numpy array
@@ -74,7 +74,7 @@ new_swimmer_data = pd.DataFrame({
 '''
 # new strat start
 # Assuming 'pivoted_df' is the pivoted DataFrame
-stacked_df = selected_columns.stack().reset_index()
+stacked_df = swimmers_all_times.stack().reset_index()
 
 # Rename the columns for clarity
 stacked_df.columns = ['Name', 'Age', 'Time']
@@ -92,31 +92,29 @@ new_rows_df = pd.DataFrame(new_data)
 # Append the new DataFrame to the existing DataFrame
 stacked_df = pd.concat([stacked_df, new_rows_df], ignore_index=True)
 '''
+treated_swimmer = "Aidan Stoffle"
 
 names_list = stacked_df['Name'].unique().tolist()
-# names_list.remove("INPUT")
-remove = ['Aaron Sequeira', 'Abe Townley', 'Antonio Milin', 'Ben Hilfinger', 'Daniel Baltes', 'Diego Mas', 'Drew Hawthorne', 'Jerard Jacinto', 'Kent Olsen-Stavrakas', 'Kraig Bray', 'Matthew Namakonov', 'Mike Atanasoff', 'Ryan Perham', 'Tomas Koski']
-names_list = [name for name in names_list if name not in remove]
-
+names_list = [name for name in names_list if name != treated_swimmer]
 
 dataprep_train = Dataprep(
     foo=stacked_df,
     predictors= ["Time"],
     predictors_op= "mean",
-    time_predictors_prior=range(14,18),
+    time_predictors_prior=range(13,18),
     dependent="Time",
     unit_variable="Name",
     time_variable="Age",
-    treatment_identifier="Aaron Sequeira",
+    treatment_identifier=treated_swimmer,
     controls_identifier= names_list,
-    time_optimize_ssr=range(14,18),
+    time_optimize_ssr=range(13,18),
 )
 
 synth_train = Synth()
 synth_train.fit(dataprep=dataprep_train)
 # synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
-for weight in synth_train.weights():
-    print(weight)
+# for weight in synth_train.weights():
+#     print(weight)
 
 synth_train.path_plot(time_period=range(10, 22), treatment_time= 17)
 synth_train.gaps_plot(time_period=range(10, 22), treatment_time= 17)
