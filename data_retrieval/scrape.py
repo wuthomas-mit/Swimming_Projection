@@ -24,7 +24,7 @@ service.start()
 driver = webdriver.Remote(service.service_url, options=options)  # Pass options here
 
 driver.get("https://www.usaswimming.org/times/individual-times-search")
-df = pd.read_csv('100FREESCY.csv')
+df = pd.read_csv('/Users/thomaswu/Documents/Programming/Swimming_Projection/data/50FREE/50FREESCY.csv')
 
 
 
@@ -41,6 +41,8 @@ dropdown.send_keys(Keys.RETURN)
 
 
 for index, row in df.iterrows():
+    if index < 412:
+        continue
     # Going through list of top times and searching US swimmers
     if row['="IsForeign"'] == '="False"':
         name = row['="FullName"'].split(", ")
