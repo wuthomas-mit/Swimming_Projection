@@ -1,12 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pysyncon import Dataprep, Synth
+from pysyncon import Dataprep, Synth, AugSynth, PenalizedSynth, RobustSynth
+from pysyncon.utils import PlaceboTest
+
 
 
 
 # Load your data from Excel
-file_path = '/Users/thomaswu/Documents/Programming/Swimming_Projection/combined_output_50FREE.xlsx'
+file_path = '/Users/thomaswu/Documents/Programming/Swimming_Projection/combined_output_100FREE.xlsx'
 df = pd.read_excel(file_path)
 
 # Select the fastest swim per year of age
@@ -82,8 +84,8 @@ stacked_df.columns = ['Name', 'Age', 'Time']
 '''
 #Creating Input Swimmer
 new_ages = [10, 11, 12, 13, 14, 15, 16, 17]
-# new_times = [62.13, 58.96, 53.99, 49.51, 47.5, 45.56, 43.82]
-new_times = [28.99, 27.42, 26.05, 23.67, 22.71, 22.4, 21.75, 21.04]
+new_times = [62.13, 58.96, 53.99, 49.51, 47.5, 45.56, 43.82]
+new_times = [30.52, 27.63, 25.61, 24.12, 22.54, 21.19, 20.27, 19.99, 19.90]
 
 # Create a DataFrame from the new data
 new_data = {'Name': 'INPUT', 'Age': new_ages, 'Time': new_times}
@@ -92,29 +94,109 @@ new_rows_df = pd.DataFrame(new_data)
 # Append the new DataFrame to the existing DataFrame
 stacked_df = pd.concat([stacked_df, new_rows_df], ignore_index=True)
 '''
-treated_swimmer = "Aidan Stoffle"
-
+# print(stacked_df)
+treated_swimmer = "Alec Delong"
+pre_start = 13
+pre_end = 18
 names_list = stacked_df['Name'].unique().tolist()
 names_list = [name for name in names_list if name != treated_swimmer]
+# print(names_list)
 
+filtered_df = stacked_df[stacked_df["Name"] == treated_swimmer]
+print(filtered_df)
+
+'''
 dataprep_train = Dataprep(
     foo=stacked_df,
     predictors= ["Time"],
     predictors_op= "mean",
-    time_predictors_prior=range(13,18),
+    time_predictors_prior=range(pre_start,pre_end),
     dependent="Time",
     unit_variable="Name",
     time_variable="Age",
     treatment_identifier=treated_swimmer,
     controls_identifier= names_list,
-    time_optimize_ssr=range(13,18),
+    time_optimize_ssr=range(pre_start,pre_end),
 )
 
+
 synth_train = Synth()
-synth_train.fit(dataprep=dataprep_train)
-# synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
+# synth_train.fit(dataprep=dataprep_train)
+synth_train.fit(dataprep=dataprep_train, optim_method="Nelder-Mead", optim_initial="equal")
+
 # for weight in synth_train.weights():
 #     print(weight)
-
 synth_train.path_plot(time_period=range(10, 22), treatment_time= 17)
 synth_train.gaps_plot(time_period=range(10, 22), treatment_time= 17)
+# print(synth_train.summary())
+'''
+
+'''
+#starting AugSynth
+aug_dataprep = Dataprep(
+    foo=stacked_df,
+    predictors= ["Time"],
+    predictors_op= "mean",
+    time_predictors_prior=range(11,18),
+    dependent="Time",
+    unit_variable="Name",
+    time_variable="Age",
+    treatment_identifier=treated_swimmer,
+    controls_identifier= names_list,
+    time_optimize_ssr=range(11,18),
+)
+
+augsynth = AugSynth()
+augsynth.fit(dataprep=aug_dataprep)
+# print(augsynth.weights())
+augsynth.path_plot(time_period=range(10, 22), treatment_time= 17)
+augsynth.gaps_plot(time_period=range(10, 22), treatment_time= 17)
+augsynth.cv_result.plot()
+# print(augsynth.summary())
+'''
+
+'''
+#starting PenalizedSynth
+pen_dataprep = Dataprep(
+    foo=stacked_df,
+    predictors= ["Time"],
+    predictors_op= "mean",
+    time_predictors_prior=range(11,18),
+    dependent="Time",
+    unit_variable="Name",
+    time_variable="Age",
+    treatment_identifier=treated_swimmer,
+    controls_identifier= names_list,
+    time_optimize_ssr=range(11,18),
+)
+
+pen = PenalizedSynth()
+pen.fit(pen_dataprep, lambda_=0.01)
+# print(augsynth.weights())
+pen.path_plot(time_period=range(10, 22), treatment_time= 17)
+pen.gaps_plot(time_period=range(10, 22), treatment_time= 17)
+print(pen.summary())
+'''
+
+
+#starting RobustSynth
+robust_dataprep = Dataprep(
+    foo=stacked_df,
+    predictors= ["Time"],
+    predictors_op= "mean",
+    time_predictors_prior=range(11,18),
+    dependent="Time",
+    unit_variable="Name",
+    time_variable="Age",
+    treatment_identifier=treated_swimmer,
+    controls_identifier= names_list,
+    time_optimize_ssr=range(11,18),
+)
+
+robust = RobustSynth()
+robust.fit(robust_dataprep, lambda_=0.01, sv_count=3)
+
+# print(augsynth.weights())
+robust.path_plot(time_period=range(10, 22), treatment_time= 17)
+robust.gaps_plot(time_period=range(10, 22), treatment_time= 17)
+print(robust.summary())

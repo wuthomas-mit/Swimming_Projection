@@ -2,12 +2,12 @@ import os
 import pandas as pd
 
 # Folder containing the Excel files
-folder_path = "/Users/thomaswu/Downloads/50FREEDATA"
+folder_path = "/Users/thomaswu/Downloads/100FREEDATA"
 
 # Output file name
-output_file = "combined_output_50FREE.xlsx"
+output_file = "combined_output_100FREE.xlsx"
 
-
+print("Running")
 # Initialize an empty list to store DataFrames
 data_frames = []
 
@@ -24,7 +24,7 @@ for file_name in os.listdir(folder_path):
         df['Name'] = name
 
         # Filter rows where "Event" column is equal to "100 FR SCY"
-        df_filtered = df[df['Event'] == '50 FR SCY']
+        df_filtered = df[df['Event'] == '100 FR SCY']
         
         # Append the data to the list
         data_frames.append(df_filtered)
