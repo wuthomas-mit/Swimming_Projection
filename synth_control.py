@@ -8,12 +8,12 @@ from pysyncon.utils import PlaceboTest
 
 
 # Load your data from Excel
-file_path = '/Users/thomaswu/Documents/Programming/Swimming_Projection/combined_output_100FREE.xlsx'
+file_path = '/Users/thomaswu/Documents/Programming/Swimming_Projection/combined_output_50FREE.xlsx'
 df = pd.read_excel(file_path)
 
 # Select the fastest swim per year of age
 fastest_swims = df.sort_values('Time').groupby(['Name', 'Age']).head(1)
-
+print(len(df['Name'].unique()))
 # Pivot the data
 pivoted_df = fastest_swims.pivot_table(index='Name', columns='Age', values='Time', aggfunc='first').fillna(0)
 
@@ -94,10 +94,23 @@ new_rows_df = pd.DataFrame(new_data)
 # Append the new DataFrame to the existing DataFrame
 stacked_df = pd.concat([stacked_df, new_rows_df], ignore_index=True)
 '''
-# print(stacked_df)
-treated_swimmer = "Alec Delong"
+# print(stacked_df['Name'].unique())
+'''
+['Aaron Sequeira' 'Aidan Stoffle' 'August Lamb' 'Brad Sanford'
+ 'Brady Fields' 'Brett Pinfold' 'Brooks Curry' 'Cason Wilburn'
+ 'Charlie Kaye' 'Christian Bart' 'Christian Osterndorf' 'Clayton Conklin'
+ 'Danny Krueger' 'Danny Syrkin' 'David Curtiss' 'Dylan Delaney'
+ 'Dylan Hawk' 'Ethan Churilla' 'Ev Nichol' 'Finn Howard'
+ 'Finn O&#39;Haimhirgin' 'Greg Kalin' 'Isaac Casey-Hrenak' 'Jack Jannasch'
+ 'Jack Wolfred' 'Jacob Molacek' 'Jesse Novak' 'Joey Garberick' 'Jp Hynes'
+ 'Kaloyan Bratanov' 'Kevin Hammer' 'Kham Glass' 'Leo Kuyl'
+ 'Marcus Hodgson' 'Matthew Lattin' 'Mihalis Deliyiannis' 'Nate Stoffle'
+ 'Nicholas Goudie' 'Noah Holstege' 'Peter LaBarge' 'Ryan Husband'
+ 'Ryan Linnihan' 'Spencer Adrian' 'Sterling Crane' 'Will Tarvestad']
+ '''
+treated_swimmer = "Aaron Sequeira"
 pre_start = 13
-pre_end = 18
+pre_end = 17
 names_list = stacked_df['Name'].unique().tolist()
 names_list = [name for name in names_list if name != treated_swimmer]
 # print(names_list)
@@ -178,25 +191,27 @@ pen.gaps_plot(time_period=range(10, 22), treatment_time= 17)
 print(pen.summary())
 '''
 
-
 #starting RobustSynth
 robust_dataprep = Dataprep(
     foo=stacked_df,
     predictors= ["Time"],
     predictors_op= "mean",
-    time_predictors_prior=range(11,18),
+    time_predictors_prior=range(11,17),
     dependent="Time",
     unit_variable="Name",
     time_variable="Age",
     treatment_identifier=treated_swimmer,
     controls_identifier= names_list,
-    time_optimize_ssr=range(11,18),
+    time_optimize_ssr=range(11,17),
 )
 
 robust = RobustSynth()
-robust.fit(robust_dataprep, lambda_=0.01, sv_count=3)
+robust.fit(robust_dataprep, lambda_=0.01, sv_count=1)
 
 # print(augsynth.weights())
-robust.path_plot(time_period=range(10, 22), treatment_time= 17)
-robust.gaps_plot(time_period=range(10, 22), treatment_time= 17)
+robust.path_plot(time_period=range(10, 22), treatment_time= 16)
+robust.gaps_plot(time_period=range(10, 22), treatment_time= 16)
 print(robust.summary())
+# for weight, name in robust.weights():
+#     print(weight, name)
+print(robust.weights())
