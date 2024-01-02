@@ -118,6 +118,35 @@ names_list = [name for name in names_list if name != treated_swimmer]
 filtered_df = stacked_df[stacked_df["Name"] == treated_swimmer]
 print(filtered_df)
 
+
+#starting RobustSynth
+robust_dataprep = Dataprep(
+    foo=stacked_df,
+    predictors= ["Time"],
+    predictors_op= "mean",
+    time_predictors_prior=range(11,17),
+    dependent="Time",
+    unit_variable="Name",
+    time_variable="Age",
+    treatment_identifier=treated_swimmer,
+    controls_identifier= names_list,
+    time_optimize_ssr=range(11,17),
+)
+
+robust = RobustSynth()
+robust.fit(robust_dataprep, lambda_=0.01, sv_count=1)
+
+# print(augsynth.weights())
+robust.path_plot(time_period=range(10, 22), treatment_time= 16)
+robust.gaps_plot(time_period=range(10, 22), treatment_time= 16)
+print(robust.summary())
+# for weight, name in robust.weights():
+#     print(weight, name)
+print(robust.weights())
+
+
+
+
 '''
 dataprep_train = Dataprep(
     foo=stacked_df,
@@ -190,28 +219,3 @@ pen.path_plot(time_period=range(10, 22), treatment_time= 17)
 pen.gaps_plot(time_period=range(10, 22), treatment_time= 17)
 print(pen.summary())
 '''
-
-#starting RobustSynth
-robust_dataprep = Dataprep(
-    foo=stacked_df,
-    predictors= ["Time"],
-    predictors_op= "mean",
-    time_predictors_prior=range(11,17),
-    dependent="Time",
-    unit_variable="Name",
-    time_variable="Age",
-    treatment_identifier=treated_swimmer,
-    controls_identifier= names_list,
-    time_optimize_ssr=range(11,17),
-)
-
-robust = RobustSynth()
-robust.fit(robust_dataprep, lambda_=0.01, sv_count=1)
-
-# print(augsynth.weights())
-robust.path_plot(time_period=range(10, 22), treatment_time= 16)
-robust.gaps_plot(time_period=range(10, 22), treatment_time= 16)
-print(robust.summary())
-# for weight, name in robust.weights():
-#     print(weight, name)
-print(robust.weights())
