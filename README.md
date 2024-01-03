@@ -17,3 +17,14 @@ Welcome to the Swimming Career Projection repository! This project aims to devel
 
 4. **Assessment Tool for Organizations:**
    - Provide swimming organizations with a tool to assess the capabilities of swimmers. This could be useful for talent scouting, team building, and making data-driven decisions.
+
+## Steps For Use
+
+1. **Data Collection:**
+   - Begin by going to https://www.usaswimming.org/times/popular-resources/event-rank-search, where you find the top ~500 (will only give ~200-300) swimmers using the parameteres that you choose. Download the excel sheet of those entries. Then, in data_retrieval/scrape.py, change the input file and then let run until completion.
+
+2. **Data Preparation:**
+   - Use pre_processing/data_congregate.py on the folder of the downloaded excel files from previous step.
+
+3. **Employing Synthetic Control:**
+   - Use synth_control.py on the correct combined_output file to run synthetic control.
