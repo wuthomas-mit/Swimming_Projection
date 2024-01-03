@@ -26,6 +26,7 @@ filtered_swimmers = selected_columns.loc[:, (selected_columns.columns >= age_ran
 
 # Keep only the rows (swimmers) that have all times
 swimmers_all_times = selected_columns[filtered_swimmers]
+
 # new strat start
 # # Assuming 'pivoted_df' is the pivoted DataFrame
 # stacked_df = swimmers_all_times.stack().reset_index()
@@ -39,11 +40,6 @@ swimmers_all_times = selected_columns[filtered_swimmers]
 # #Visualize synthetic control
 # sc.plot(["original", "pointwise", "cumulative"], treated_label="Aaron Sequeira", synth_label="Synthetic Aaron Sequeira", treatment_label="Age")
 
-
-
-
-'''
-'''
 # Assuming 'pivoted_df' is the pivoted DataFrame
 stacked_df = swimmers_all_times.stack().reset_index()
 
